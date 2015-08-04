@@ -191,6 +191,7 @@ public:
 
 	void SetUniform(const std::string& name, float value) {
 		GLint location = GetUniformLocation(name);
+		std:: cout << value << location << "\n";
 		if (location == -1) return;
 		if(GLEW_VERSION_2_0) {
 			glUniform1f(location, value);

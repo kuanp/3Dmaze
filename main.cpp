@@ -37,7 +37,11 @@ int inputCase;
 int xstart;
 int ystart;
 
-Point3f viewPt, viewCtr, viewUp;
+const int REG_SHADER = 0;
+const int CONT_SHADER = 1;
+int curShader = REG_SHADER;
+
+// Point3f viewPt, viewCtr, viewUp;
 // Renders a vertex. Note, have to be enclosed by begin and end.
 void renderVertex(Point3f vert, Point3f n, Point2f t) {
     if (inputCase == ALL || inputCase == TEXTURE) {
@@ -71,15 +75,23 @@ void DrawWithShader(){
 
 void DisplayCallback(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+ //   glMatrixMode(GL_PROJECTION);
+ //   glLoadIdentity();
+ //   glScalef(2, 2, 1);
+
+//    glEnable(GL_COLOR_MATERIAL);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glTranslatef(0.f, 0.f, -10.f);
+    gluLookAt(0, -5, 2.5,
+	    0, 2, 1.5,
+	    0, 1, 0);
 
-//    glMatrixMode(GL_MODELVIEW);
-//    glLoadIdentity();
-//
-//    glEnable(GL_COLOR_MATERIAL);
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    glutInitWindowSize(640, 480);
+    gluPerspective(30.0f, (float)640/(float)480, 0.1f, 100000.f);
+    glScalef(.25,.25,1);
 
     GLfloat redDiffuseMaterial[] = {1.0, 0.0, 0.0, 1};
     GLfloat whiteSpecularMaterial[] = {1.0, 1.0, 1.0, 1};
@@ -98,7 +110,7 @@ void DisplayCallback(){
     GLfloat amb_color[] = {0.5, 0.5, 0.5, 1};
     GLfloat diff_color[] = {1, 1, 1, 1};
     GLfloat spec_color[] = {1, 1, 1, 1};
-    GLfloat light_position[] = {1, 1, 10, 1};
+    GLfloat light_position[] = {1, -5, 5, 1};
     glLightfv(GL_LIGHT0, GL_AMBIENT, amb_color);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diff_color);
     glLightfv(GL_LIGHT0, GL_SPECULAR, spec_color);
@@ -114,6 +126,7 @@ void ReshapeCallback(int w, int h){
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     gluPerspective(30.0f, (float)w/(float)h, 0.1f, 100000.f);
+    glScalef(.25,.25,1);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -149,15 +162,15 @@ void mouseMoved(int x, int y) {
     glMatrixMode(GL_MODELVIEW);
 
     if (x != xstart) {
-	glTranslatef(viewCtr.x, viewCtr.y, viewCtr.z);
-	glRotatef(xstart - x, viewUp.x, viewUp.y, viewUp.z);
-	glTranslatef(-viewCtr.x, -viewCtr.y, -viewCtr.z);
+//	glTranslatef(viewCtr.x, viewCtr.y, viewCtr.z);
+//	glRotatef(xstart - x, viewUp.x, viewUp.y, viewUp.z);
+//	glTranslatef(-viewCtr.x, -viewCtr.y, -viewCtr.z);
     }
 
     if ( y != ystart) {
-	glTranslatef(viewCtr.x, viewCtr.y, viewCtr.z);
-	glRotatef(ystart - y, 1, 0, 0);
-	glTranslatef(-viewCtr.x, -viewCtr.y, -viewCtr.z);
+//	glTranslatef(viewCtr.x, viewCtr.y, viewCtr.z);
+//	glRotatef(ystart - y, 1, 0, 0);
+//	glTranslatef(-viewCtr.x, -viewCtr.y, -viewCtr.z);
     }
 
     glutPostRedisplay();
@@ -180,6 +193,18 @@ void KeyCallback(unsigned char key, int x, int y){
     case 'q':
         exit(0);
 	break;
+    case 'c':
+	// performs uniform change
+	shader->Bind();
+	if (curShader == REG_SHADER) {
+	    shader->SetUniform("shaderOption", 5.f);
+	    curShader = CONT_SHADER;
+	} else {
+	    curShader = REG_SHADER;
+	    shader->SetUniform("shaderOption", 0.f);
+	}
+	shader->UnBind();
+	break;
     case ' ':
 	screenshot();
 	break;
@@ -193,12 +218,13 @@ void Setup(){
     shader = new SimpleShaderProgram();
     shader->LoadVertexShader(vertexShader);
     shader->LoadFragmentShader(fragmentShader);
+
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glEnable(GL_DEPTH_TEST);
-
-    viewPt = Point3f(0,-5,5);
-    viewCtr = Point3f(0.5,0.5,0.5);
-    viewUp = Point3f(0,1,0);
+    shader->SetUniform("shaderOption", (float)curShader);
+//    viewPt = Point3f(0,-5,5);
+//    viewCtr = Point3f(0.5,0.5,0.5);
+//    viewUp = Point3f(0,1,0);
 }
 
 // performs computations for normals in case there is none.

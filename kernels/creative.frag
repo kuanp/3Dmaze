@@ -1,10 +1,13 @@
-// phong.frag
-// computes ambient, diffuse, and specular terms to produce lighting effects
+// creative.frag
+// Normally computes ambient, diffuse, and specular terms to produce lighting effects
+// Or does additional countour mapping based on y values if instructed.
 
 // Already interpolated values.
 varying vec3 normal;
 varying vec3 curPosition;
 
+uniform float shaderOption;
+const float THRESHOLD = 1.0;
 void main()
 {
     // already have normal and current position in view space.
@@ -36,5 +39,18 @@ void main()
 	* pow(dot, gl_FrontMaterial.shininess); // not sure if shininess factor is correct;
 
     // output
-    gl_FragColor = ambient + diffuse + specular;
+    if (shaderOption > THRESHOLD) {
+	gl_FragColor = ambient + diffuse + specular;
+    } else {
+	float curElev = (curPosition.y + 6.0) * 4.0;
+	int level = int(curElev);
+	vec4 contour = float(level) * vec4(0.0, .03, 0.01, 1.0);
+
+	// adds a line.
+	if (abs(curElev - float(level)) > 0.1) {
+	    gl_FragColor = ambient + diffuse + contour;
+	} else {
+	    gl_FragColor = vec4(0, 0, 0, 1) + ambient;
+	}
+    }
 }

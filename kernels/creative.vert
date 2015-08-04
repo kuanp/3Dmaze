@@ -1,10 +1,9 @@
 /*
- * phong.vert
+ * creative.vert
 */
 //Interpolation candidates.
 varying vec3 normal;
 varying vec3 curPosition;
-
 
 void main()
 {
