@@ -41,7 +41,9 @@ const int REG_SHADER = 0;
 const int CONT_SHADER = 1;
 int curShader = REG_SHADER;
 
-// Point3f viewPt, viewCtr, viewUp;
+Point3f uiTranslations = Point3f(0, 0, -1);
+Point2f uiRotations = Point2f(0, 0);
+Point3f uiScale = Point3f(5,5,5);
 // Renders a vertex. Note, have to be enclosed by begin and end.
 void renderVertex(Point3f vert, Point3f n, Point2f t) {
     if (inputCase == ALL || inputCase == TEXTURE) {
@@ -83,15 +85,17 @@ void DisplayCallback(){
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0, -5, 2.5,
-	    0, 2, 1.5,
-	    0, 1, 0);
+    glTranslatef(uiTranslations.x, uiTranslations.y, uiTranslations.z);
+    glRotatef(uiRotations.x, 0, 1, 0); // rotation around y axis. Left Right
+    glRotatef(uiRotations.y, 1, 0, 0); // rotation around x axis. Up down
+    //cout << uiRotations.x << "\n";
 
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
+    //glMatrixMode( GL_PROJECTION );
+    //glLoadIdentity();
+    //gluPerspective(30.0f, (float)640/(float)480, 0.1f, 100000.f);
+    //glScalef(uiScale.x,uiScale.y,uiScale.z);
+
     glutInitWindowSize(640, 480);
-    gluPerspective(30.0f, (float)640/(float)480, 0.1f, 100000.f);
-    glScalef(.25,.25,1);
 
     GLfloat redDiffuseMaterial[] = {1.0, 0.0, 0.0, 1};
     GLfloat whiteSpecularMaterial[] = {1.0, 1.0, 1.0, 1};
@@ -159,36 +163,38 @@ void mouseClicked(int button, int state, int x, int y) {
 }
 
 void mouseMoved(int x, int y) {
-    glMatrixMode(GL_MODELVIEW);
-
+//    cout << x << " and  " << xstart << "\n";
     if (x != xstart) {
-//	glTranslatef(viewCtr.x, viewCtr.y, viewCtr.z);
-//	glRotatef(xstart - x, viewUp.x, viewUp.y, viewUp.z);
-//	glTranslatef(-viewCtr.x, -viewCtr.y, -viewCtr.z);
+	uiRotations.x += (x - xstart);
     }
 
     if ( y != ystart) {
-//	glTranslatef(viewCtr.x, viewCtr.y, viewCtr.z);
-//	glRotatef(ystart - y, 1, 0, 0);
-//	glTranslatef(-viewCtr.x, -viewCtr.y, -viewCtr.z);
+	uiRotations.y += (y - ystart);
     }
 
-    glutPostRedisplay();
     xstart = x;
     ystart = y;
 }
 
 void KeyCallback(unsigned char key, int x, int y){
     switch(key) {
+    case 'a':
+	uiTranslations.x += 1;
+	break;
+    case 'd':
+	uiTranslations.x -= 1;
+	break;
+    case 'e':
+	uiTranslations.y += 1;
+	break;
+    case 'r':
+	uiTranslations.y -= 1;
+	break;
     case 'w':
-	glMatrixMode(GL_PROJECTION);
-	glScalef(2, 2, 1);
-	glutPostRedisplay();
+	uiTranslations.z += 1;
 	break;
     case 's':
-	glMatrixMode(GL_PROJECTION);
-	glScalef(.5, .5, 1);
-	glutPostRedisplay();
+	uiTranslations.z -= 1;
 	break;
     case 'q':
         exit(0);

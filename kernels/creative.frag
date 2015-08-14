@@ -30,7 +30,7 @@ void main()
     vec4 ambient = gl_FrontMaterial.ambient * gl_LightSource[0].ambient;
 
     // find the diffuse term
-    float dot = max(dot(normal, toLight), 0.0);
+    float dot = max(dot(normal, -toLight), 0.0);
     vec4 diffuse = gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse * dot;
 
     // finally, find the specular term
